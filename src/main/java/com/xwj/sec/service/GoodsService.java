@@ -36,10 +36,11 @@ public class GoodsService {
 	/**
 	 * 减库存
 	 */
-	public void reduceStock(GoodsVo goods) {
+	public boolean reduceStock(GoodsVo goods) {
 		SeckillGoods g = new SeckillGoods();
 		g.setGoodsId(goods.getId());
-		goodsDao.reduceStock(g);
+		int res = goodsDao.reduceStock(g);
+		return res > 0;
 	}
 
 }

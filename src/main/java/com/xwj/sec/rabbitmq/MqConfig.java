@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MqConfig {
 	
+	public static final String SECKILL_QUEUE_NAME = "seckill.queue"; //秒杀队列名称
 	public static final String QUEUE_NAME = "queue";
 	public static final String TOPIC_QUEUE1 = "topic.queue1";
 	public static final String TOPIC_QUEUE2 = "topic.queue2";

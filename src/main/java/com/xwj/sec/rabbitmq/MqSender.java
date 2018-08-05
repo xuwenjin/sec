@@ -15,30 +15,40 @@ import com.xwj.sec.util.JsonUtil;
  */
 @Service
 public class MqSender {
-	
+
 	private static Logger log = LoggerFactory.getLogger(MqSender.class);
 
 	@Autowired
 	private AmqpTemplate amqpTemplate;
 
-	public void send(Object message) {
-		String msg = JsonUtil.beanToString(message);
+	/**
+	 * 发送消息
+	 * @param seckillMsg
+	 */
+	public void sendSeckillMsg(SeckillMsg seckillMsg) {
+		String msg = JsonUtil.beanToString(seckillMsg);
 		log.info("send message: " + msg);
-		amqpTemplate.convertAndSend(MqConfig.QUEUE_NAME, msg);
+		amqpTemplate.convertAndSend(MqConfig.SECKILL_QUEUE_NAME, msg);
 	}
-	
-	public void sendTopic(Object message) {
-		String msg = JsonUtil.beanToString(message);
-		log.info("send topic message: " + msg);
-		amqpTemplate.convertAndSend(MqConfig.TOPIC_EXCHANGE, "topic.key1", msg + "1");
-		amqpTemplate.convertAndSend(MqConfig.TOPIC_EXCHANGE, "topic.key2", msg + "2");
-	}
-	
-	public void sendFanout(Object message) {
-		String msg = JsonUtil.beanToString(message);
-		log.info("send fanout message: " + msg);
-		amqpTemplate.convertAndSend(MqConfig.FUNOUT_EXCHANGE, "fanout.key1", msg + "1");
-		amqpTemplate.convertAndSend(MqConfig.FUNOUT_EXCHANGE, "fanout.key2", msg + "2");
-	}
+
+//	public void send(Object message) {
+//		String msg = JsonUtil.beanToString(message);
+//		log.info("send message: " + msg);
+//		amqpTemplate.convertAndSend(MqConfig.QUEUE_NAME, msg);
+//	}
+//
+//	public void sendTopic(Object message) {
+//		String msg = JsonUtil.beanToString(message);
+//		log.info("send topic message: " + msg);
+//		amqpTemplate.convertAndSend(MqConfig.TOPIC_EXCHANGE, "topic.key1", msg + "1");
+//		amqpTemplate.convertAndSend(MqConfig.TOPIC_EXCHANGE, "topic.key2", msg + "2");
+//	}
+//
+//	public void sendFanout(Object message) {
+//		String msg = JsonUtil.beanToString(message);
+//		log.info("send fanout message: " + msg);
+//		amqpTemplate.convertAndSend(MqConfig.FUNOUT_EXCHANGE, "fanout.key1", msg + "1");
+//		amqpTemplate.convertAndSend(MqConfig.FUNOUT_EXCHANGE, "fanout.key2", msg + "2");
+//	}
 
 }

@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.xwj.sec.entity.SeckillUser;
-import com.xwj.sec.redis.RedisService;
 import com.xwj.sec.service.GoodsService;
-import com.xwj.sec.service.SeckillUserService;
 import com.xwj.sec.vo.GoodsVo;
 
 /**
@@ -22,12 +20,6 @@ import com.xwj.sec.vo.GoodsVo;
 @Controller
 @RequestMapping("/goods")
 public class GoodsController {
-
-	@Autowired
-	private SeckillUserService userService;
-
-	@Autowired
-	private RedisService redisService;
 
 	@Autowired
 	private GoodsService goodsService;
@@ -56,8 +48,8 @@ public class GoodsController {
 		long endAt = goods.getEndTime().getTime();
 		long now = System.currentTimeMillis();
 
-		int seckillStatus = 0; //秒杀状态
-		int remainSeconds = 0; //秒杀剩余时间(秒)
+		int seckillStatus = 0; // 秒杀状态
+		int remainSeconds = 0; // 秒杀剩余时间(秒)
 		if (now < startAt) {// 秒杀还没开始，倒计时
 			seckillStatus = 0;
 			remainSeconds = (int) ((startAt - now) / 1000);

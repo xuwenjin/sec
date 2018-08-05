@@ -1,21 +1,16 @@
 package com.xwj.sec.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.xwj.sec.rabbitmq.MqSender;
 import com.xwj.sec.result.CodeMsg;
 import com.xwj.sec.result.Result;
 
 @Controller
 public class IndexController {
 	
-	@Autowired
-	private MqSender sender;
-
 	@GetMapping("/hello")
 	@ResponseBody
 	public Result<String> hello() {
@@ -34,25 +29,25 @@ public class IndexController {
 		return "index";
 	}
 	
-	@GetMapping("/mq")
-	@ResponseBody
-	public Result<String> mq() {
-		sender.send("Hello world");
-		return Result.success("OK");
-	}
-	
-	@GetMapping("/mq/topic")
-	@ResponseBody
-	public Result<String> topic() {
-		sender.sendTopic("Hello world");
-		return Result.success("OK");
-	}
-	
-	@GetMapping("/mq/fanout")
-	@ResponseBody
-	public Result<String> fanout() {
-		sender.sendFanout("Hello world");
-		return Result.success("OK");
-	}
+//	@GetMapping("/mq")
+//	@ResponseBody
+//	public Result<String> mq() {
+//		sender.send("Hello world");
+//		return Result.success("OK");
+//	}
+//	
+//	@GetMapping("/mq/topic")
+//	@ResponseBody
+//	public Result<String> topic() {
+//		sender.sendTopic("Hello world");
+//		return Result.success("OK");
+//	}
+//	
+//	@GetMapping("/mq/fanout")
+//	@ResponseBody
+//	public Result<String> fanout() {
+//		sender.sendFanout("Hello world");
+//		return Result.success("OK");
+//	}
 
 }

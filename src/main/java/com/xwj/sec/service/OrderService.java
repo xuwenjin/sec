@@ -24,7 +24,7 @@ public class OrderService {
 
 	@Autowired
 	private OrderDao orderDao;
-	
+
 	@Autowired
 	private RedisService redisService;
 
@@ -51,16 +51,16 @@ public class OrderService {
 		orderInfo.setStatus(0);
 		orderInfo.setUserId(user.getId());
 		orderInfo.setCreateTime(new Date());
-		long orderId = orderDao.insert(orderInfo);
+		orderDao.insert(orderInfo);
 
 		// 生成秒杀订单
 		SeckillOrder seckillOrder = new SeckillOrder();
 		seckillOrder.setGoodsId(goods.getId());
-		seckillOrder.setOrderId(orderId);
+		seckillOrder.setOrderId(orderInfo.getId());
 		seckillOrder.setUserId(user.getId());
 		orderDao.insertSeckillOrder(seckillOrder);
-		
-		//写入redis
+
+		// 写入redis
 		redisService.set(OrderKey.getSeckillOrderByUidGid, "" + user.getId() + "_" + goods.getId(), seckillOrder);
 
 		return orderInfo;
