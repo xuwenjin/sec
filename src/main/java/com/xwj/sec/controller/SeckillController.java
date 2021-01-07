@@ -10,6 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,24 +27,21 @@ import com.xwj.sec.result.CodeMsg;
 import com.xwj.sec.result.Result;
 import com.xwj.sec.service.GoodsService;
 import com.xwj.sec.service.OrderService;
+import com.xwj.sec.service.SeckillService;
 import com.xwj.sec.vo.GoodsVo;
 
 @Controller
 @RequestMapping("/seckill")
 public class SeckillController implements InitializingBean {
 
-	// @Autowired
-	// private SeckillUserService userService;
-
+	@Autowired
+	private SeckillService seckillService;
 	@Autowired
 	private RedisService redisService;
-
 	@Autowired
 	private GoodsService goodsService;
-
 	@Autowired
 	private OrderService orderService;
-
 	@Autowired
 	private MqSender sender;
 
@@ -64,12 +62,19 @@ public class SeckillController implements InitializingBean {
 	/**
 	 * 秒杀
 	 */
-	@RequestMapping("/do_seckill")
-	public Result<Integer> list(Model model, SeckillUser user, @RequestParam("goodsId") long goodsId) {
+	@RequestMapping("/{path}/do_seckill")
+	public Result<Integer> list(Model model, SeckillUser user, @RequestParam("goodsId") long goodsId, @PathVariable String path) {
 		model.addAttribute("user", user);
 		if (user == null) {
 			return Result.error(CodeMsg.SESSION_ERROR);
 		}
+
+		// 校验秒杀地址
+		boolean check = seckillService.checkSeckillPath(user, goodsId, path);
+		if (!check) {
+			return Result.error(CodeMsg.REQUEST_ILLEGAL);
+		}
+
 		// 标记该商品是否秒杀完成，减少redis访问
 		boolean over = localOverMap.get(goodsId);
 		if (over) {
@@ -91,36 +96,23 @@ public class SeckillController implements InitializingBean {
 		SeckillMsg msg = new SeckillMsg(user, goodsId);
 		sender.sendSeckillMsg(msg);
 		return Result.success(0); // 排队中
-
-		// // 判断库存
-		// GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-		// int stock = goods.getStockCount();
-		// if (stock <= 0) {
-		// model.addAttribute("errmsg", CodeMsg.SECKILL_OVER.getMsg());
-		// return "seckill_fail";
-		// }
-		// // 判断是否已经秒杀到了
-		// SeckillOrder order =
-		// orderService.getSeckillOrderByUserIdGoodsId(user.getId(), goodsId);
-		// if (order != null) {
-		// model.addAttribute("errmsg", CodeMsg.REPEATE_SECKILL.getMsg());
-		// return "seckill_fail";
-		// }
-		// // 减库存 下订单 写入秒杀订单
-		// OrderInfo orderInfo = seckillService.seckill(user, goods);
-		// model.addAttribute("orderInfo", orderInfo);
-		// model.addAttribute("goods", goods);
-		// return "order_detail";
 	}
 
-	// @AccessLimit用来限流
+	/**
+	 * 获取秒杀地址
+	 */
 	@AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
 	@RequestMapping(value = "/path", method = RequestMethod.GET)
 	@ResponseBody
-	public Result<String> getMiaoshaPath(HttpServletRequest request, SeckillUser user,
-			@RequestParam("goodsId") long goodsId,
-			@RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode) {
-		return Result.error(CodeMsg.SESSION_ERROR);
+	public Result<String> getMiaoshaPath(HttpServletRequest request, SeckillUser user, @RequestParam("goodsId") long goodsId, @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode) {
+		if (user == null) {
+			return Result.error(CodeMsg.SESSION_ERROR);
+		}
+		// TODO 验证下验证码verifyCode
+
+		// 生成秒杀path
+		String path = seckillService.createSeckillPath(user, goodsId);
+		return Result.success(path);
 	}
 
 }

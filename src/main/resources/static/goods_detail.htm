@@ -87,16 +87,16 @@
 </div>
 </body>
 <script>
-
+// 获取秒杀地址
 function getMiaoshaPath(){
 	var goodsId = $("#goodsId").val();
 	g_showLoading();
 	$.ajax({
-		url:"/miaosha/path",
-		type:"GET",
+		url: "/miaosha/path",
+		type: "GET",
 		data:{
-			goodsId:goodsId,
-			verifyCode:$("#verifyCode").val()
+			goodsId: goodsId,
+			verifyCode: $("#verifyCode").val()
 		},
 		success:function(data){
 			if(data.code == 0){
@@ -148,9 +148,10 @@ function getMiaoshaResult(goodsId){
 	});
 }
 
+//执行秒杀逻辑
 function doMiaosha(path){
 	$.ajax({
-		url:"/miaosha/"+path+"/do_miaosha",
+		url:"/miaosha/" + path + "/do_miaosha",
 		type:"POST",
 		data:{
 			goodsId:$("#goodsId").val()

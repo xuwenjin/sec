@@ -24,7 +24,6 @@ public class SeckillUserService {
 
 	@Autowired
 	private SeckillUserDao seckillUserDao;
-
 	@Autowired
 	private RedisService redisService;
 

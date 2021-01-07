@@ -24,7 +24,6 @@ public class OrderService {
 
 	@Autowired
 	private OrderDao orderDao;
-
 	@Autowired
 	private RedisService redisService;
 
