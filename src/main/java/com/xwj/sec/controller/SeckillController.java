@@ -60,10 +60,27 @@ public class SeckillController implements InitializingBean {
 	}
 
 	/**
+	 * 获取秒杀地址
+	 */
+	@AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
+	@RequestMapping(value = "/path", method = RequestMethod.GET)
+	@ResponseBody
+	public Result<String> getMiaoshaPath(HttpServletRequest request, SeckillUser user, @RequestParam("goodsId") long goodsId, @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode) {
+		if (user == null) {
+			return Result.error(CodeMsg.SESSION_ERROR);
+		}
+		// TODO 验证下验证码verifyCode
+
+		// 生成秒杀path
+		String path = seckillService.createSeckillPath(user, goodsId);
+		return Result.success(path);
+	}
+
+	/**
 	 * 秒杀
 	 */
 	@RequestMapping("/{path}/do_seckill")
-	public Result<Integer> list(Model model, SeckillUser user, @RequestParam("goodsId") long goodsId, @PathVariable String path) {
+	public Result<Integer> seckill(Model model, SeckillUser user, @RequestParam("goodsId") long goodsId, @PathVariable String path) {
 		model.addAttribute("user", user);
 		if (user == null) {
 			return Result.error(CodeMsg.SESSION_ERROR);
@@ -99,20 +116,18 @@ public class SeckillController implements InitializingBean {
 	}
 
 	/**
-	 * 获取秒杀地址
+	 * 查询秒杀结果
+	 * 
+	 * @return 返回orderId：秒杀成功，-1：秒杀失败，0：排队中
 	 */
-	@AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
-	@RequestMapping(value = "/path", method = RequestMethod.GET)
+	@RequestMapping(value = "/result", method = RequestMethod.GET)
 	@ResponseBody
-	public Result<String> getMiaoshaPath(HttpServletRequest request, SeckillUser user, @RequestParam("goodsId") long goodsId, @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode) {
+	public Result<Long> getMiaoshaResult(SeckillUser user, @RequestParam("goodsId") long goodsId) {
 		if (user == null) {
 			return Result.error(CodeMsg.SESSION_ERROR);
 		}
-		// TODO 验证下验证码verifyCode
-
-		// 生成秒杀path
-		String path = seckillService.createSeckillPath(user, goodsId);
-		return Result.success(path);
+		long result = seckillService.getSeckillResult(user, goodsId);
+		return Result.success(result);
 	}
 
 }

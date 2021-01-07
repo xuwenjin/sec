@@ -92,7 +92,7 @@ function getMiaoshaPath(){
 	var goodsId = $("#goodsId").val();
 	g_showLoading();
 	$.ajax({
-		url: "/miaosha/path",
+		url: "/seckill/path",
 		type: "GET",
 		data:{
 			goodsId: goodsId,
@@ -112,10 +112,33 @@ function getMiaoshaPath(){
 	});
 }
 
+//执行秒杀逻辑
+function doMiaosha(path){
+	$.ajax({
+		url:"/seckill/" + path + "/do_seckill",
+		type:"POST",
+		data:{
+			goodsId:$("#goodsId").val()
+		},
+		success:function(data){
+			if(data.code == 0){
+				//window.location.href="/order_detail.htm?orderId="+data.data.id;
+				getMiaoshaResult($("#goodsId").val());
+			}else{
+				layer.msg(data.msg);
+			}
+		},
+		error:function(){
+			layer.msg("客户端请求有误");
+		}
+	});
+}
+
+// 获取秒杀结果
 function getMiaoshaResult(goodsId){
 	g_showLoading();
 	$.ajax({
-		url:"/miaosha/result",
+		url:"/seckill/result",
 		type:"GET",
 		data:{
 			goodsId:$("#goodsId").val(),
@@ -125,7 +148,8 @@ function getMiaoshaResult(goodsId){
 				var result = data.data;
 				if(result < 0){
 					layer.msg("对不起，秒杀失败");
-				}else if(result == 0){//继续轮询
+				}else if(result == 0){
+					//继续轮询，每隔200ms查询结果
 					setTimeout(function(){
 						getMiaoshaResult(goodsId);
 					}, 200);
@@ -146,29 +170,6 @@ function getMiaoshaResult(goodsId){
 			layer.msg("客户端请求有误");
 		}
 	});
-}
-
-//执行秒杀逻辑
-function doMiaosha(path){
-	$.ajax({
-		url:"/miaosha/" + path + "/do_miaosha",
-		type:"POST",
-		data:{
-			goodsId:$("#goodsId").val()
-		},
-		success:function(data){
-			if(data.code == 0){
-				//window.location.href="/order_detail.htm?orderId="+data.data.id;
-				getMiaoshaResult($("#goodsId").val());
-			}else{
-				layer.msg(data.msg);
-			}
-		},
-		error:function(){
-			layer.msg("客户端请求有误");
-		}
-	});
-	
 }
 
 function render(detail){
@@ -198,9 +199,9 @@ $(function(){
 function getDetail(){
 	var goodsId = g_getQueryString("goodsId");
 	$.ajax({
-		url:"/goods/detail/"+goodsId,
-		type:"GET",
-		success:function(data){
+		url: "/goods/detail/" + goodsId,
+		type: "GET",
+		success: function(data){
 			if(data.code == 0){
 				render(data.data);
 			}else{
